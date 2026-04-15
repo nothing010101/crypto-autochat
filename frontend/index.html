@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Crypto Autochat Control</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 720px; margin: 40px auto; padding: 16px; }
+    input, button { padding: 10px; margin: 6px 0; width: 100%; }
+    pre { background: #f4f4f4; padding: 12px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Crypto Autochat Control</h1>
+
+  <label>Railway Backend URL</label>
+  <input id="backendUrl" placeholder="https://your-backend.up.railway.app" />
+
+  <label>Target URL</label>
+  <input id="targetUrl" placeholder="https://your-backend.up.railway.app/mock-receiver" />
+
+  <label>Delay (seconds)</label>
+  <input id="delay" type="number" value="5" />
+
+  <label>Max messages</label>
+  <input id="maxMessages" type="number" value="100" />
+
+  <button onclick="startWorker()">Start</button>
+  <button onclick="stopWorker()">Stop</button>
+  <button onclick="getStatus()">Refresh Status</button>
+
+  <pre id="output">Ready.</pre>
+
+  <script>
+    const output = document.getElementById("output");
+
+    async function startWorker() {
+      const backendUrl = document.getElementById("backendUrl").value.trim();
+      const targetUrl = document.getElementById("targetUrl").value.trim();
+      const delay = parseInt(document.getElementById("delay").value, 10);
+      const maxMessages = parseInt(document.getElementById("maxMessages").value, 10);
+
+      const res = await fetch(`${backendUrl}/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target_url: targetUrl,
+          delay_seconds: delay,
+          max_messages: maxMessages
+        })
+      });
+
+      output.textContent = JSON.stringify(await res.json(), null, 2);
+    }
+
+    async function stopWorker() {
+      const backendUrl = document.getElementById("backendUrl").value.trim();
+
+      const res = await fetch(`${backendUrl}/stop`, {
+        method: "POST"
+      });
+
+      output.textContent = JSON.stringify(await res.json(), null, 2);
+    }
+
+    async function getStatus() {
+      const backendUrl = document.getElementById("backendUrl").value.trim();
+
+      const res = await fetch(`${backendUrl}/status`);
+      output.textContent = JSON.stringify(await res.json(), null, 2);
+    }
+  </script>
+</body>
+</html>
